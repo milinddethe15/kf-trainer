@@ -34,7 +34,7 @@ jobs:
             exit 1
           fi
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-      
+
       - name: Check whether SDK version matches
         run: |
           # Extract version from __init__.py
@@ -46,7 +46,7 @@ jobs:
             exit 1
           else
             echo "SDK __init__.py version '${INIT_VERSION}' matches version '${VERSION}'."
-          fi 
+          fi
 
       - name: Check whether swagger.json version matches
         run: |
