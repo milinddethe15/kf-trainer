@@ -29,6 +29,5 @@ exclude: |
     sdk/kubeflow/trainer/__init__.py|
     sdk/kubeflow/trainer/api/__init__.py|
     sdk/kubeflow/trainer/models/.*|
-    sdk/docs/.*|
-    VERSION
+    sdk/docs/.*
   )$
