@@ -126,8 +126,8 @@ jobs:
         uses: ./.github/workflows/template-publish-image
         with:
           image: |
-            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/${{ matrix.component-name }}
-            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/${{ matrix.component-name }}
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/milinddethe15/kf-trainer/${{ matrix.component-name }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/milinddethe15/${{ matrix.component-name }}
           dockerfile: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
           context: ${{ matrix.context }}
