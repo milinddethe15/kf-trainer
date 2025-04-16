@@ -1,0 +1,229 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - release-*
+    paths:
+      - VERSION
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SEMVER_PATTERN: '^([0-9]+)\.([0-9]+)\.([0-9]+)(-rc\.([0-9]+))?$'
+  IMAGE_REGISTRY_GITHUB: ghcr.io
+  IMAGE_REGISTRY_DOCKER: docker.io
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check whether version matches semver pattern
+        run: |
+          VERSION=$(cat VERSION)
+          if [[ ${VERSION} =~ ${{ env.SEMVER_PATTERN }} ]]; then
+            echo "Version '${VERSION}' matches semver pattern."
+          else
+            echo "Version '${VERSION}' does not match semver pattern."
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Check whether SDK version matches
+        run: |
+          # Extract version from __init__.py
+          INIT_VERSION=$(grep '__version__' sdk/kubeflow/trainer/__init__.py | cut -d'"' -f2)
+
+          if [[ ${INIT_VERSION} != ${VERSION} ]]; then
+            echo "Error: SDK __init__.py version '${INIT_VERSION}' does not match VERSION '${VERSION}'."
+            echo "Run ./hack/python-sdk/gen-sdk.sh to update the SDK version."
+            exit 1
+          else
+            echo "SDK __init__.py version '${INIT_VERSION}' matches version '${VERSION}'."
+          fi
+
+      - name: Check whether swagger.json version matches
+        run: |
+          SWAGGER_VERSION=$(grep -o '"version": "[^"]*"' api/openapi-spec/swagger.json | cut -d'"' -f4)
+
+          if [[ ${SWAGGER_VERSION} != ${VERSION} ]]; then
+            echo "Error: swagger.json version '${SWAGGER_VERSION}' does not match VERSION '${VERSION}'."
+            exit 1
+          else
+            echo "swagger.json version '${SWAGGER_VERSION}' matches version '${VERSION}'."
+          fi
+
+      - name: Check if tag exists
+        run: |
+          git fetch --tags
+          if git tag -l | grep -q "^${VERSION}$"; then
+            echo "Tag '${VERSION}' already exists."
+            exit 1
+          else
+            echo "Tag '${VERSION}' does not exist."
+          fi
+
+  build_and_push_images:
+    needs:
+      - check-release
+    name: Build and Push Release Images
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - component-name: trainer-controller-manager
+            dockerfile: cmd/trainer-controller-manager/Dockerfile
+            platforms: linux/amd64,linux/arm64,linux/ppc64le
+          - component-name: model-initializer
+            dockerfile: cmd/initializers/model/Dockerfile
+            platforms: linux/amd64,linux/arm64
+          - component-name: dataset-initializer
+            dockerfile: cmd/initializers/dataset/Dockerfile
+            platforms: linux/amd64,linux/arm64
+          - component-name: deepspeed-runtime
+            dockerfile: cmd/runtimes/deepspeed/Dockerfile
+            platforms: linux/amd64,linux/arm64
+          - component-name: mlx-runtime
+            dockerfile: cmd/runtimes/mlx/Dockerfile
+            platforms: linux/arm64
+          - component-name: torchtune-trainer
+            dockerfile: cmd/trainers/torchtune/Dockerfile
+            platforms: linux/amd64,linux/arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version from VERSION file
+        run: |
+          VERSION=$(cat VERSION)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: GHCR Login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.IMAGE_REGISTRY_GITHUB }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Hub Login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.IMAGE_REGISTRY_DOCKER }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish Component ${{ matrix.component-name }}
+        uses: ./.github/workflows/template-publish-image
+        with:
+          image: |
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/milinddethe15/kf-trainer/${{ matrix.component-name }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/milinddethe15/${{ matrix.component-name }}
+          dockerfile: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
+          context: ${{ matrix.context }}
+          push: true
+          tags: |
+            type=raw,value=${{ env.VERSION }}
+
+  push_tag:
+    needs:
+      - build_and_push_images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Read version from VERSION file
+        run: |
+          VERSION=$(cat VERSION)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create and push tag
+        run: |
+          git tag -a "${VERSION}" -m "Kubeflow Trainer ${VERSION}"
+          git push origin "${VERSION}"
+
+  draft_release:
+    needs:
+      - push_tag
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Read version from VERSION file
+        run: |
+          VERSION=$(cat VERSION)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: "Kubeflow Trainer ${{ env.VERSION }}"
+          tag_name: ${{ env.VERSION }}
+          prerelease: ${{ contains(env.VERSION, 'rc') }}
+          target_commitish: ${{ github.sha }}
+          draft: true
+          body: |
+            # Kubeflow Trainer ${{ env.VERSION }}
+
+            ## What's Changed
+            <!-- Add release highlights here manually -->
+
+            ## Docker Images
+            Images are available on both DockerHub and GitHub Container Registry:
+
+            ```
+            # GitHub Container Registry
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/trainer-controller-manager:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/model-initializer:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/dataset-initializer:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/deepspeed-runtime:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/mlx-runtime:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_GITHUB }}/kubeflow/trainer/torchtune-trainer:${{ env.VERSION }}
+
+            # DockerHub
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/trainer-controller-manager:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/model-initializer:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/dataset-initializer:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/deepspeed-runtime:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/mlx-runtime:${{ env.VERSION }}
+            ${{ env.IMAGE_REGISTRY_DOCKER }}/kubeflow/torchtune-trainer:${{ env.VERSION }}
+            ```
+
+            ## Python SDK
+            The SDK is available on PyPI:
+
+            ```bash
+            pip install kubeflow-trainer==${{ env.VERSION }}
+            ```
