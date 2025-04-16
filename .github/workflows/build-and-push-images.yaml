@@ -7,8 +7,7 @@ on:
 jobs:
   build-and-publish:
     name: Build and Publish Images
-    runs-on:
-      labels: ubuntu-latest-16-cores
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
@@ -77,6 +76,9 @@ jobs:
           platforms: ${{ matrix.platforms }}
           context: ${{ matrix.context }}
           push: true
+          tags: |
+            type=raw,latest
+            type=sha
 
       - name: Test Build For Component ${{ matrix.component-name }}
         if: steps.publish-condition.outputs.should_publish != 'true'
@@ -89,3 +91,6 @@ jobs:
           platforms: ${{ matrix.platforms }}
           context: ${{ matrix.context }}
           push: false
+          tags: |
+            type=raw,latest
+            type=sha
