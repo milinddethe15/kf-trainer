@@ -19,7 +19,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"k8s.io/klog/v2"
@@ -34,12 +33,6 @@ import (
 func main() {
 	var oAPIDefs = map[string]common.OpenAPIDefinition{}
 	defs := spec.Definitions{}
-
-	versionBytes, err := os.ReadFile("VERSION")
-	if err != nil {
-		klog.Fatalf("Failed to read VERSION file: %v", err)
-	}
-	version := string(versionBytes)
 
 	refCallback := func(name string) spec.Ref {
 		return spec.MustCreateRef("#/definitions/" + swaggify(name))
@@ -72,7 +65,7 @@ func main() {
 			Info: &spec.Info{
 				InfoProps: spec.InfoProps{
 					Title:   "Kubeflow Trainer OpenAPI Spec",
-					Version: version,
+					Version: "unversioned",
 				},
 			},
 		},
