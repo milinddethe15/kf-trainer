@@ -56,14 +56,6 @@ git branch -r | grep -q "origin/${RELEASE_BRANCH}"
 if [ $? -ne 0 ]; then
   echo "Branch: ${RELEASE_BRANCH} does not exist. Creating a new release branch."
   git checkout -b "$RELEASE_BRANCH"
-else
-  echo "Branch: ${RELEASE_BRANCH} exists. Creating a new patch release."
-  git checkout "$RELEASE_BRANCH"
-  read -rp "Did you cherry pick all commits from the main branch to ${RELEASE_BRANCH}? [y|n] "
-  if [ "$REPLY" != "y" ]; then
-    echo "Release aborted."
-    exit 1
-  fi
 fi
 
 # Update the VERSION file
