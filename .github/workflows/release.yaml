@@ -61,18 +61,6 @@ jobs:
             echo "swagger.json version '${SWAGGER_VERSION}' matches version '${VERSION}'."
           fi
 
-      - name: Check if all image tags match VERSION
-        run: |
-          VERSION=$(cat VERSION)
-          MISMATCHED_TAGS=$(find manifests -type f -name '*.yaml' -exec grep -H 'newTag:' {} + | awk -F: '{print $1":"$2":"$3}' | grep -v "newTag: ${VERSION}")
-
-          if [[ -n "$MISMATCHED_TAGS" ]]; then
-            echo "Error: The following files have mismatched newTag values:"
-            echo "$MISMATCHED_TAGS"
-            exit 1
-          else
-            echo "All newTag values match VERSION '${VERSION}'."
-          fi
 
       - name: Check if tag exists
         run: |

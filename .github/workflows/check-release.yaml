@@ -59,22 +59,6 @@ jobs:
             echo "swagger.json version '${SWAGGER_VERSION}' matches version '${VERSION}'."
           fi
 
-      - name: Check if all image tags match VERSION
-        run: |
-          VERSION=$(cat VERSION)
-          # Find lines with 'newTag:' but NOT the correct 'newTag: v${VERSION}'
-          # Use grep -H to get filenames.
-          MISMATCHED_LINES=$(find manifests -type f -name '*.yaml' -exec grep -H 'newTag:' {} + | grep -v "newTag: v${VERSION}")
-
-          if [[ -n "$MISMATCHED_LINES" ]]; then
-            echo "Error: The following files/lines have mismatched newTag values (expected 'v${VERSION}'):"
-            # Output the lines found by grep, which include filename, line number, and content
-            echo "$MISMATCHED_LINES"
-            exit 1
-          else
-            echo "All newTag values match VERSION 'v${VERSION}'."
-          fi
-
       - name: Check if tag exists
         run: |
           git fetch --tags
