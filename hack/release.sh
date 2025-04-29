@@ -52,9 +52,13 @@ fi
 echo -e "\nCreating a new release. Branch: ${RELEASE_BRANCH}, Tag: ${TAG}\n"
 
 # Check if branch exists, else create it
-git branch -r | grep -q "origin/${RELEASE_BRANCH}"
-if [ $? -ne 0 ]; then
+if git branch -r | grep -q "origin/${RELEASE_BRANCH}"; then
+  echo "Branch: ${RELEASE_BRANCH} already exists. Switching to the branch."
+  git checkout "$RELEASE_BRANCH"
+else
   echo "Branch: ${RELEASE_BRANCH} does not exist. Creating a new release branch."
+  git checkout master
+  git pull origin master
   git checkout -b "$RELEASE_BRANCH"
 fi
 
