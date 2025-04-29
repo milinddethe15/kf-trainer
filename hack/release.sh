@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+# Copyright 2024 The Kubeflow Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This shell is used to generate a release for X.Y.Z version.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+set -x
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <version>"
+  echo "You must follow this format: X.Y.Z or X.Y.Z-rc.N"
+  exit 1
+fi
+
+NEW_VERSION=$(echo "$1" | tr -d '\n' | tr -d ' ')
+
+# Validate version format: X.Y.Z or X.Y.Z-rc.N
+if [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+  echo "Version format is invalid. Use: X.Y.Z or X.Y.Z-rc.N"
+  exit 1
+fi
+
+RELEASE_BRANCH="release-$NEW_VERSION"
+TAG="v$NEW_VERSION"
+
+VERSION_FILE="$(dirname "$0")/../VERSION"
+MANIFESTS_DIR="$(dirname "$0")/../manifests"
+
+# Fetch and check if tag already exists
+git fetch --tags
+git fetch origin "$RELEASE_BRANCH" || true
+if git tag --list | grep -q "^${TAG}$"; then
+  echo "Tag: ${TAG} already exists. Release can't be published."
+  exit 1
+fi
+
+echo -e "\nCreating a new release. Branch: ${RELEASE_BRANCH}, Tag: ${TAG}\n"
+
+# Check if branch exists, else create it
+git branch -r | grep -q "origin/${RELEASE_BRANCH}"
+if [ $? -ne 0 ]; then
+  echo "Branch: ${RELEASE_BRANCH} does not exist. Creating a new release branch."
+  git checkout -b "$RELEASE_BRANCH"
+else
+  echo "Branch: ${RELEASE_BRANCH} exists. Creating a new patch release."
+  git checkout "$RELEASE_BRANCH"
+  read -rp "Did you cherry pick all commits from the main branch to ${RELEASE_BRANCH}? [y|n] "
+  if [ "$REPLY" != "y" ]; then
+    echo "Release aborted."
+    exit 1
+  fi
+fi
+
+# Update the VERSION file
+echo "$NEW_VERSION" > "$VERSION_FILE"
+echo "Updated VERSION file to $NEW_VERSION"
+
+# Run make generate
+make generate
+
+echo "Ran 'make generate'"
+
+# Update image tags in manifests YAML files
+find "$MANIFESTS_DIR" -type f -name '*.yaml' -exec sed -i "s/newTag: .*/newTag: $TAG/" {} +
+echo "Updated image tags in manifests to $TAG"
+
+git add "$VERSION_FILE" "$MANIFESTS_DIR"
+git commit -m "Release $TAG"
+
+echo -e "\nRelease $NEW_VERSION is ready."
+read -rp "Do you want to push the branch and commit to origin? [y|n] "
+if [ "$REPLY" != "y" ]; then
+  echo "Push aborted."
+  exit 1
+fi
+
+git push origin "$RELEASE_BRANCH"
+
+echo -e "\nRelease $TAG has been published on branch $RELEASE_BRANCH."
