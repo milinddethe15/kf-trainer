@@ -19,8 +19,7 @@
 set -o errexit
 set -o nounset
 
-# TODO (andreyvelich): Read this data from the global VERSION file.
-SDK_VERSION="0.1.0"
+SDK_VERSION=$(cat VERSION | tr -d '\n' | tr -d ' ')
 SDK_OUTPUT_PATH="sdk"
 
 OPENAPI_GENERATOR_VERSION="v7.11.0"
