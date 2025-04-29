@@ -91,7 +91,7 @@ jobs:
       - check-release
     name: Build and Push Release Images
     runs-on:
-      labels: ubuntu-latest-16-cores
+      labels: ubuntu-latest
 
     strategy:
       fail-fast: false
