@@ -8,7 +8,7 @@ jobs:
   build-and-publish:
     name: Build and Publish Images
     runs-on:
-      labels: ubuntu-latest-16-cores
+      labels: ubuntu-latest
 
     strategy:
       fail-fast: false
