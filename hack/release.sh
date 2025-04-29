@@ -51,16 +51,16 @@ fi
 
 echo -e "\nCreating a new release. Branch: ${RELEASE_BRANCH}, Tag: ${TAG}\n"
 
-# Check if branch exists, else create it
-if git branch -r | grep -q "origin/${RELEASE_BRANCH}"; then
-  echo "Branch: ${RELEASE_BRANCH} already exists. Switching to the branch."
-  git checkout "$RELEASE_BRANCH"
-else
-  echo "Branch: ${RELEASE_BRANCH} does not exist. Creating a new release branch."
-  git checkout master
-  git pull origin master
-  git checkout -b "$RELEASE_BRANCH"
-fi
+# # Check if branch exists, else create it
+# if git branch -r | grep -q "origin/${RELEASE_BRANCH}"; then
+#   echo "Branch: ${RELEASE_BRANCH} already exists. Switching to the branch."
+#   git checkout "$RELEASE_BRANCH"
+# else
+#   echo "Branch: ${RELEASE_BRANCH} does not exist. Creating a new release branch."
+#   git checkout master
+#   git pull origin master
+#   git checkout -b "$RELEASE_BRANCH"
+# fi
 
 # Update the VERSION file
 echo "$NEW_VERSION" > "$VERSION_FILE"
@@ -75,8 +75,8 @@ echo "Ran 'make generate'"
 find "$MANIFESTS_DIR" -type f -name '*.yaml' -exec sed -i "s/newTag: .*/newTag: $TAG/" {} +
 echo "Updated image tags in manifests to $TAG"
 
-git add "$VERSION_FILE" "$MANIFESTS_DIR"
-git commit -m "Release $TAG"
+git add .
+git commit -s -m "Release $TAG"
 
 echo -e "\nRelease $NEW_VERSION is ready."
 read -rp "Do you want to push the branch and commit to origin? [y|n] "
