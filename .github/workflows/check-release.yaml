@@ -62,7 +62,7 @@ jobs:
       - name: Check if all image tags match VERSION
         run: |
           VERSION=$(cat VERSION)
-          MISMATCHED_TAGS=$(find manifests -type f -name '*.yaml' -exec grep -H 'newTag:' {} + | awk -F: '{print $1":"$2":"$3}' | grep -v "newTag: ${VERSION}")
+          MISMATCHED_TAGS=$(find manifests -type f -name '*.yaml' -exec grep -H 'newTag:' {} + | awk -F: '{print $1":"$2":"$3}' | grep -v "newTag: v${VERSION}")
 
           if [[ -n "$MISMATCHED_TAGS" ]]; then
             echo "Error: The following files have mismatched newTag values:"
