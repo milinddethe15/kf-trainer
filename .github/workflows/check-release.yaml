@@ -46,3 +46,20 @@ jobs:
           else
             echo "Tag '${TAG}' does not exist."
           fi
+
+      - name: Check if manifests image tag matches version
+        run: |
+          VERSION=$(cat VERSION)
+          TAG="v${VERSION}"
+          MANIFEST_TAGS=$(grep -r 'newTag:' manifests | sed 's/.*newTag:[[:space:]]*//' | tr -d '"' | tr -d "'" | sort | uniq)
+          if [ -z "$MANIFEST_TAGS" ]; then
+              echo "No newTag found in manifests."
+              exit 1
+          fi
+          for t in $MANIFEST_TAGS; do
+              if [ "$t" != "$TAG" ]; then
+                  echo "Image tag in manifests ($t) does not match version tag ($TAG)."
+                  exit 1
+              fi
+          done
+          echo "All image tags in manifests match version tag $TAG."
