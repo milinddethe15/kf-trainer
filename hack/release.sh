@@ -55,8 +55,8 @@ if git branch -r | grep -q "origin/${RELEASE_BRANCH}"; then
   git checkout "$RELEASE_BRANCH"
 else
   echo "Branch: ${RELEASE_BRANCH} does not exist. Creating a new release branch."
-  git checkout master
-  git pull origin master
+  # git checkout master
+  # git pull origin master
   git checkout -b "$RELEASE_BRANCH"
 fi
 
