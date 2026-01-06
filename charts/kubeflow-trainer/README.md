@@ -52,7 +52,7 @@ See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall) for command docum
 | commonLabels | object | `{}` | Common labels to add to the resources. |
 | image.registry | string | `"ghcr.io"` | Image registry. |
 | image.repository | string | `"kubeflow/trainer/trainer-controller-manager"` | Image repository. |
-| image.tag | string | `""` | Image tag. Defaults to the chart appVersion. |
+| image.tag | string | `""` | Image tag. Defaults to the chart version formatted for the appropriate image tag. |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy. |
 | image.pullSecrets | list | `[]` | Image pull secrets for private image registry. |
 | manager.replicas | int | `1` | Number of replicas of manager. |

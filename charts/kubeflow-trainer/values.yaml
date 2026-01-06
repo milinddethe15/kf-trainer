@@ -39,7 +39,7 @@ image:
   registry: ghcr.io
   # -- Image repository.
   repository: kubeflow/trainer/trainer-controller-manager
-  # -- Image tag. Defaults to the chart appVersion.
+  # -- Image tag. Defaults to the chart version formatted for the appropriate image tag.
   tag: ""
   # -- Image pull policy.
   pullPolicy: IfNotPresent
