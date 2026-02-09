@@ -1,5 +1,28 @@
 # Changelog
 
+## [v2.3.0](https://github.com/kubeflow/trainer/releases/tag/v2.3.0) (2026-02-09)
+
+This is Kubeflow Trainer v2.3.0 release.
+
+```bash
+kubectl apply --server-side -k "https://github.com/kubeflow/trainer.git/manifests/overlays/manager?ref=v2.3.0"
+kubectl apply --server-side -k "https://github.com/kubeflow/trainer.git/manifests/overlays/runtimes?ref=v2.3.0"
+```
+
+You can now install controller manager with Helm charts 🚀
+
+```bash
+helm install kubeflow-trainer oci://ghcr.io/kubeflow/charts/kubeflow-trainer --version 2.3.0
+```
+
+For more information, please see [the Kubeflow Trainer docs](https://www.kubeflow.org/docs/components/trainer/overview/)
+### 🚀 Features
+
+- feat(release): Add PyPI API token for publishing packages (@milinddethe15)
+- feat(release): Enhance release workflows with manual trigger and image build steps (@milinddethe15)
+
+
+
 # [v2.1.0](https://github.com/kubeflow/trainer/tree/v2.1.0) (2025-11-07)
 
 This is Kubeflow Trainer v2.1.0 release.
