@@ -103,7 +103,7 @@ jobs:
           PY_VER=$(python - <<'PY'
           import re
           from pathlib import Path
-          text = Path('api/python_api/kubeflow_trainer_api/__init__.py').read_text()
+          text = Path('api/python_api/kubeflow_trainer_api_milind/__init__.py').read_text()
           m = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", text)
           if not m:
               raise SystemExit("__version__ not found")
@@ -203,7 +203,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: release
-      url: https://pypi.org/project/kubeflow-trainer-api/
+      url: https://pypi.org/project/kubeflow-trainer-api-milind/
 
     steps:
       - name: Download build artifacts
