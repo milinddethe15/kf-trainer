@@ -41,7 +41,7 @@ VERSION_FILE="$REPO_ROOT/VERSION"
 MANIFESTS_DIR="$REPO_ROOT/manifests"
 CHART_DIR="$REPO_ROOT/charts/kubeflow-trainer"
 CHART_FILE="$CHART_DIR/Chart.yaml"
-PYTHON_API_VERSION_FILE="$REPO_ROOT/api/python_api/kubeflow_trainer_api/__init__.py"
+PYTHON_API_VERSION_FILE="$REPO_ROOT/api/python_api/kubeflow_trainer_api_milind/__init__.py"
 
 # Verify tag doesn't already exist
 git fetch --tags

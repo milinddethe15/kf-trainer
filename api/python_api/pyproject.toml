@@ -1,5 +1,5 @@
 [project]
-name = "kubeflow_trainer_api"
+name = "kubeflow_trainer_api_milind"
 dynamic = ["version"]
 requires-python = ">=3.9"
 authors = [
@@ -36,4 +36,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "kubeflow_trainer_api/__init__.py"
+path = "kubeflow_trainer_api_milind/__init__.py"

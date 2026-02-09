@@ -35,7 +35,7 @@ if [ ! -f "${VERSION_FILE}" ]; then
 fi
 API_VERSION=$(sed 's/^v//' "${VERSION_FILE}")
 API_OUTPUT_PATH="api/python_api"
-PKG_ROOT="${API_OUTPUT_PATH}/kubeflow_trainer_api"
+PKG_ROOT="${API_OUTPUT_PATH}/kubeflow_trainer_api_milind"
 
 OPENAPI_GENERATOR_VERSION="v7.13.0"
 SWAGGER_CODEGEN_CONF="hack/python-api/swagger_config.json"
