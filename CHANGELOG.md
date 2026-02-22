@@ -1,5 +1,67 @@
 # Changelog
 
+## [v3.0.0](https://github.com/kubeflow/trainer/releases/tag/v3.0.0) (2026-02-22)
+
+This is Kubeflow Trainer v3.0.0 release.
+
+```bash
+kubectl apply --server-side -k "https://github.com/kubeflow/trainer.git/manifests/overlays/manager?ref=v3.0.0"
+kubectl apply --server-side -k "https://github.com/kubeflow/trainer.git/manifests/overlays/runtimes?ref=v3.0.0"
+```
+
+You can now install controller manager with Helm charts 🚀
+
+```bash
+helm install kubeflow-trainer oci://ghcr.io/kubeflow/charts/kubeflow-trainer --version 3.0.0
+```
+
+For more information, please see [the Kubeflow Trainer docs](https://www.kubeflow.org/docs/components/trainer/overview/)
+### 🚀 Features
+
+- feat: Code Quality Checks workflow ([#3224](https://github.com/kubeflow/trainer/pull/3224) by @Goku2099)
+- feat: Add the manager field to the podTemplateOverride object ([#3020](https://github.com/kubeflow/trainer/pull/3020) by @kaisoz)
+- feat(runtimes): add support for ClusterTrainingRuntimes in Helm chart ([#3124](https://github.com/kubeflow/trainer/pull/3124) by @khushiiagrawal)
+- feat(docs): KEP-2598 XGBoost Runtime for Trainer V2 ([#3118](https://github.com/kubeflow/trainer/pull/3118) by @Krishna-kg732)
+- feat: add production-ready MNIST example for PyTorch ([#3063](https://github.com/kubeflow/trainer/pull/3063) by @Snehadas2005)
+- feat(examples): add torch.compile to PyTorch local examples ([#3076](https://github.com/kubeflow/trainer/pull/3076) by @Ishtiyaque-Alam)
+- feat(api): Fix immutability of the TrainJob APIs ([#3157](https://github.com/kubeflow/trainer/pull/3157) by @andreyvelich)
+- feat(runtimes): Use JobSet VolumeClaimPolicies APIs for LLM Runtimes ([#3150](https://github.com/kubeflow/trainer/pull/3150) by @andreyvelich)
+
+### 🐛 Bug Fixes
+
+- fix: align torch-distributed-with-cache runtime logic with unit tests ([#3226](https://github.com/kubeflow/trainer/pull/3226) by @Goku2099)
+- fix(ci): correct duplicate step name in `test-go.yaml` ([#3202](https://github.com/kubeflow/trainer/pull/3202) by @puwun)
+- fix: align torchao with torch 2.9.1 to fix GPU e2e failure ([#3203](https://github.com/kubeflow/trainer/pull/3203) by @Goku2099)
+- fix: Update Python API version file path in check-release workflow (@milinddethe15)
+
+### ⚙️ Miscellaneous Tasks
+
+- chore(deps): bump futures from 0.3.31 to 0.3.32 in /pkg/data_cache ([#3214](https://github.com/kubeflow/trainer/pull/3214) by @dependabot[bot])
+- chore: migrate to a10.2 gpu for gpu e2e ([#3220](https://github.com/kubeflow/trainer/pull/3220) by @jaiakash)
+- chore(deps): bump deepspeed from 0.18.5 to 0.18.6 in /cmd/runtimes/deepspeed ([#3212](https://github.com/kubeflow/trainer/pull/3212) by @dependabot[bot])
+- chore(deps): bump transformers from 4.57.6 to 5.2.0 in /cmd/runtimes/deepspeed ([#3210](https://github.com/kubeflow/trainer/pull/3210) by @dependabot[bot])
+- chore(deps): bump clap from 4.5.57 to 4.5.59 in /pkg/data_cache/test ([#3206](https://github.com/kubeflow/trainer/pull/3206) by @dependabot[bot])
+- chore(deps): update huggingface-hub requirement from <1.4,>=0.27.0 to >=0.27.0,<1.5 in /cmd/initializers/dataset ([#3194](https://github.com/kubeflow/trainer/pull/3194) by @dependabot[bot])
+- chore(deps): bump the kubernetes group with 7 updates ([#3204](https://github.com/kubeflow/trainer/pull/3204) by @dependabot[bot])
+- chore(deps): bump mlx[cuda] from 0.30.5 to 0.30.6 in /cmd/runtimes/mlx ([#3196](https://github.com/kubeflow/trainer/pull/3196) by @dependabot[bot])
+- chore(deps): update huggingface-hub requirement from <1.4,>=0.27.0 to >=0.27.0,<1.5 in /cmd/initializers/model ([#3198](https://github.com/kubeflow/trainer/pull/3198) by @dependabot[bot])
+- chore(deps): bump mlx-lm from 0.30.5 to 0.30.6 in /cmd/runtimes/mlx ([#3195](https://github.com/kubeflow/trainer/pull/3195) by @dependabot[bot])
+- chore(deps): bump clap from 4.5.56 to 4.5.57 in /pkg/data_cache/test ([#3193](https://github.com/kubeflow/trainer/pull/3193) by @dependabot[bot])
+- chore(deps): bump sigs.k8s.io/structured-merge-diff/v6 from 6.3.2-0.20260122202528-d9cc6641c482 to 6.3.2 in the kubernetes group ([#3190](https://github.com/kubeflow/trainer/pull/3190) by @dependabot[bot])
+- chore(deps): bump arrow-flight from 57.2.0 to 57.3.0 in /pkg/data_cache/test ([#3192](https://github.com/kubeflow/trainer/pull/3192) by @dependabot[bot])
+- chore(deps): bump tonic from 0.14.2 to 0.14.3 in /pkg/data_cache/test ([#3163](https://github.com/kubeflow/trainer/pull/3163) by @dependabot[bot])
+- chore(deps): bump golang.org/x/crypto from 0.47.0 to 0.48.0 in the golang group ([#3191](https://github.com/kubeflow/trainer/pull/3191) by @dependabot[bot])
+- chore: Add comprehensive unit tests for Config API ([#2893](https://github.com/kubeflow/trainer/pull/2893) by @kapil27)
+- chore(docs): added kubecon 2025 trainer talk ([#3187](https://github.com/kubeflow/trainer/pull/3187) by @jaiakash)
+
+
+### New Contributors
+* @puwun made their first contribution in [#](https://github.com/kubeflow/trainer/pull/)
+* @Krishna-kg732 made their first contribution in [#](https://github.com/kubeflow/trainer/pull/)
+* @Snehadas2005 made their first contribution in [#](https://github.com/kubeflow/trainer/pull/)
+* @Ishtiyaque-Alam made their first contribution in [#](https://github.com/kubeflow/trainer/pull/)
+
+
 # [v2.1.0](https://github.com/kubeflow/trainer/tree/v2.1.0) (2025-11-07)
 
 This is Kubeflow Trainer v2.1.0 release.
