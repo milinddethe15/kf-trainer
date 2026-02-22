@@ -231,14 +231,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate changelog
-        id: changelog
+      - name: Generate Changelog
+        id: cliff
         uses: orhun/git-cliff-action@v4
         with:
+          version: v2.12.0
           config: cliff.toml
           args: >
             --unreleased
-            --tag ${{ needs.prepare.outputs.tag }}
+            --tag v${{ github.event.inputs.version }}
+            --prepend CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -255,10 +257,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: "${{ needs.prepare.outputs.tag }}"
-          tag_name: ${{ needs.prepare.outputs.tag }}
-          target_commitish: ${{ github.sha }}
-          prerelease: ${{ needs.prepare.outputs.is-prerelease == 'true' }}
+          tag_name: v${{ github.event.inputs.version }}
+          name: v${{ github.event.inputs.version }}
+          body: ${{ steps.cliff.outputs.changelog }}
           draft: false
-          body_path: ${{ steps.changelog.outputs.changelog }}
+          prerelease: false

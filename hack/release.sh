@@ -105,7 +105,7 @@ fi
 TEMP_FILE=$(mktemp)
 docker run --rm -u "$(id -u):$(id -g)" -v "$ABSOLUTE_REPO_ROOT:/app" \
   -e "GITHUB_TOKEN=$GITHUB_TOKEN" -w /app \
-  "ghcr.io/orhun/git-cliff/git-cliff:latest" --unreleased --tag "$TAG" -o - > "$TEMP_FILE"
+  "ghcr.io/orhun/git-cliff/git-cliff:2.12.0" --unreleased --tag "$TAG" -o - > "$TEMP_FILE"
 
 if [ -f "$CHANGELOG_PATH" ]; then
   sed -i "1 r $TEMP_FILE" "$CHANGELOG_PATH"
