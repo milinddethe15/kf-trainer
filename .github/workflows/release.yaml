@@ -235,16 +235,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          fetch-tags: false
 
       - name: Generate changelog
         id: changelog
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: >
-            --unreleased
-            --tag ${{ needs.prepare.outputs.tag }}
+          args: --latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
