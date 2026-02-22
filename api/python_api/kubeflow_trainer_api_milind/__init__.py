@@ -14,7 +14,7 @@
 """  # noqa: E501
 
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 # import apis into sdk package
 
