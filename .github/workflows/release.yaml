@@ -240,6 +240,7 @@ jobs:
           args: >
             --unreleased
             --tag ${{ needs.prepare.outputs.tag }}
+            --prepend CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
