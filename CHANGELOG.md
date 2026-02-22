@@ -1,5 +1,27 @@
 # Changelog
 
+## [v2.3.0](https://github.com/kubeflow/trainer/releases/tag/v2.3.0) (2026-02-22)
+
+This is Kubeflow Trainer v2.3.0 release.
+
+```bash
+kubectl apply --server-side -k "https://github.com/kubeflow/trainer.git/manifests/overlays/manager?ref=v2.3.0"
+kubectl apply --server-side -k "https://github.com/kubeflow/trainer.git/manifests/overlays/runtimes?ref=v2.3.0"
+```
+
+You can now install controller manager with Helm charts 🚀
+
+```bash
+helm install kubeflow-trainer oci://ghcr.io/kubeflow/charts/kubeflow-trainer --version 2.3.0
+```
+
+For more information, please see [the Kubeflow Trainer docs](https://www.kubeflow.org/docs/components/trainer/overview/)
+### 🐛 Bug Fixes
+
+- fix: remove repository condition from build-and-publish job (@milinddethe15)
+
+
+
 ## [v2.2.0](https://github.com/kubeflow/trainer/releases/tag/v2.2.0) (2026-02-22)
 
 This is Kubeflow Trainer v2.2.0 release.
