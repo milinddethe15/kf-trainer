@@ -138,6 +138,13 @@ manager:
       # webhookServiceName and webhookSecretName are auto-generated if not specified
       webhookServiceName: ""
       webhookSecretName: ""
+    statusServer:
+      # -- Port that the TrainJob status server serves on.
+      port: 10443
+      # -- QPS rate limit for the TrainJob Status Server api client
+      qps: 5
+      # -- Burst rate limit for the TrainJob Status Server api client
+      burst: 10
     featureGates: {}
 
 webhook:
@@ -209,6 +216,18 @@ runtimes:
   jaxDistributed:
     # -- Enable deployment of jax-distributed runtime
     enabled: false
+
+  # -- XGBoost distributed training runtime
+  xgboostDistributed:
+    # -- Enable deployment of xgboost-distributed runtime
+    enabled: false
+    image:
+      # -- XGBoost runtime image registry
+      registry: ghcr.io
+      # -- XGBoost runtime image repository
+      repository: kubeflow/trainer/xgboost-runtime
+      # -- XGBoost runtime image tag. Defaults to chart version if empty.
+      tag: ""
 
   # -- TorchTune distributed training runtime
   torchtuneDistributed:

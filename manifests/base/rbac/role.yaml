@@ -37,6 +37,7 @@ rules:
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
+  - mutatingwebhookconfigurations
   - validatingwebhookconfigurations
   verbs:
   - get
@@ -58,6 +59,7 @@ rules:
   - jobsets
   verbs:
   - create
+  - delete
   - get
   - list
   - patch

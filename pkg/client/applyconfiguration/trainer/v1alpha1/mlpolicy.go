@@ -1,4 +1,4 @@
-// Copyright 2024 The Kubeflow Authors
+// Copyright The Kubeflow Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ type MLPolicyApplyConfiguration struct {
 	// numNodes is the number of training nodes.
 	// Defaults to 1.
 	NumNodes *int32 `json:"numNodes,omitempty"`
-	// Configuration for the runtime-specific parameters, such as Torch or MPI.
+	// Configuration for the runtime-specific parameters, such as Torch, Flux, or MPI.
 	// Only one of its members may be specified.
 	MLPolicySourceApplyConfiguration `json:",inline"`
 }
@@ -63,10 +63,26 @@ func (b *MLPolicyApplyConfiguration) WithMPI(value *MPIMLPolicySourceApplyConfig
 	return b
 }
 
+// WithFlux sets the Flux field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Flux field is set to the value of the last call.
+func (b *MLPolicyApplyConfiguration) WithFlux(value *FluxMLPolicySourceApplyConfiguration) *MLPolicyApplyConfiguration {
+	b.MLPolicySourceApplyConfiguration.Flux = value
+	return b
+}
+
 // WithJAX sets the JAX field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the JAX field is set to the value of the last call.
 func (b *MLPolicyApplyConfiguration) WithJAX(value trainerv1alpha1.JAXMLPolicySource) *MLPolicyApplyConfiguration {
 	b.MLPolicySourceApplyConfiguration.JAX = &value
+	return b
+}
+
+// WithXGBoost sets the XGBoost field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the XGBoost field is set to the value of the last call.
+func (b *MLPolicyApplyConfiguration) WithXGBoost(value trainerv1alpha1.XGBoostMLPolicySource) *MLPolicyApplyConfiguration {
+	b.MLPolicySourceApplyConfiguration.XGBoost = &value
 	return b
 }

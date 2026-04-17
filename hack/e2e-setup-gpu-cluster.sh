@@ -88,11 +88,20 @@ mkdir -p "$HELM_CONFIG_HOME" "$HELM_CACHE_HOME" "$HELM_DATA_HOME"
 
 helm repo add nvidia https://helm.ngc.nvidia.com/nvidia && helm repo update
 
+# Configure GPU time slicing for GPU.
+kubectl create -n gpu-operator -f ./hack/gpu-time-slicing.yml
+
 helm install --wait --generate-name \
   -n gpu-operator --create-namespace \
   nvidia/gpu-operator \
   --version="${GPU_OPERATOR_VERSION}" \
-  --set driver.enabled=false
+  --set driver.enabled=false \
+  --set devicePlugin.config.name=gpu-time-slicing-config
+
+# Patch cluster to use the time slicing configuration.
+kubectl patch clusterpolicies.nvidia.com/cluster-policy \
+  -n gpu-operator --type merge \
+  -p '{"spec": {"devicePlugin": {"config": {"name": "gpu-time-slicing-config", "default": "any"}}}}'
 
 # Validation steps for GPU operator installation
 kubectl get ns gpu-operator
@@ -125,6 +134,15 @@ cat <<EOF >"${E2E_MANIFESTS_DIR}/kustomization.yaml"
   images:
   - name: "${CONTROLLER_MANAGER_CI_IMAGE_NAME}"
     newTag: "${CI_IMAGE_TAG}"
+  patches:
+  - patch: |-
+      # enable feature flags
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --feature-gates=TrainJobStatus=true
+    target:
+      kind: Deployment
+      name: kubeflow-trainer-controller-manager
 EOF
 
 kubectl apply --server-side -k "${E2E_MANIFESTS_DIR}"
@@ -180,9 +198,22 @@ kubectl get clustertrainingruntimes -o json | jq '
   .items[].spec.template.spec.replicatedJobs[].template.spec.template.spec.runtimeClassName = "nvidia"
 ' | kubectl apply -f -
 
+# hotfix: mount /dev/shm as emptyDir for NCCL shared memory requirements.
+# NCCL proxy service allocates ~33MB per communicator in /dev/shm. The default
+# Kubernetes /dev/shm is 64MB (Docker default), which is insufficient for
+# workloads that create multiple NCCL communicators (e.g. Megatron-Core TP + DP).
+# See: https://github.com/NVIDIA/nccl/issues/525
+echo "Patch CRDs to mount /dev/shm as emptyDir"
+kubectl get clustertrainingruntimes -o json | jq '
+  .items[].spec.template.spec.replicatedJobs[].template.spec.template.spec |= (
+    .volumes = ((.volumes // []) + [{"name": "dshm", "emptyDir": {"medium": "Memory"}}]) |
+    .containers = [.containers[] | .volumeMounts = ((.volumeMounts // []) + [{"name": "dshm", "mountPath": "/dev/shm"}])]
+  )
+' | kubectl apply -f -
+
 # hotfix(jaiakash) - skip pre-load due to kind failure
 # # TODO (andreyvelich): Discuss how we want to pre-load runtime images to the Kind cluster.
-# TORCH_RUNTIME_IMAGE=pytorch/pytorch:2.9.1-cuda12.8-cudnn9-runtime
+# TORCH_RUNTIME_IMAGE=pytorch/pytorch:2.10.0-cuda12.8-cudnn9-runtime
 # ${CONTAINER_RUNTIME} pull ${TORCH_RUNTIME_IMAGE}
 # load_image_to_kind ${TORCH_RUNTIME_IMAGE} ${GPU_CLUSTER_NAME}
 

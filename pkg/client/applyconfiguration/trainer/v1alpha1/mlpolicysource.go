@@ -1,4 +1,4 @@
-// Copyright 2024 The Kubeflow Authors
+// Copyright The Kubeflow Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,8 +30,12 @@ type MLPolicySourceApplyConfiguration struct {
 	Torch *trainerv1alpha1.TorchMLPolicySource `json:"torch,omitempty"`
 	// mpi defines the configuration for the MPI Runtime.
 	MPI *MPIMLPolicySourceApplyConfiguration `json:"mpi,omitempty"`
+	// flux defines the configuration for the Flux runtime.
+	Flux *FluxMLPolicySourceApplyConfiguration `json:"flux,omitempty"`
 	// jax defines the configuration for the JAX Runtime
 	JAX *trainerv1alpha1.JAXMLPolicySource `json:"jax,omitempty"`
+	// xgboost defines the configuration for the XGBoost Runtime.
+	XGBoost *trainerv1alpha1.XGBoostMLPolicySource `json:"xgboost,omitempty"`
 }
 
 // MLPolicySourceApplyConfiguration constructs a declarative configuration of the MLPolicySource type for use with
@@ -56,10 +60,26 @@ func (b *MLPolicySourceApplyConfiguration) WithMPI(value *MPIMLPolicySourceApply
 	return b
 }
 
+// WithFlux sets the Flux field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Flux field is set to the value of the last call.
+func (b *MLPolicySourceApplyConfiguration) WithFlux(value *FluxMLPolicySourceApplyConfiguration) *MLPolicySourceApplyConfiguration {
+	b.Flux = value
+	return b
+}
+
 // WithJAX sets the JAX field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the JAX field is set to the value of the last call.
 func (b *MLPolicySourceApplyConfiguration) WithJAX(value trainerv1alpha1.JAXMLPolicySource) *MLPolicySourceApplyConfiguration {
 	b.JAX = &value
+	return b
+}
+
+// WithXGBoost sets the XGBoost field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the XGBoost field is set to the value of the last call.
+func (b *MLPolicySourceApplyConfiguration) WithXGBoost(value trainerv1alpha1.XGBoostMLPolicySource) *MLPolicySourceApplyConfiguration {
+	b.XGBoost = &value
 	return b
 }
