@@ -194,6 +194,9 @@ type Initializer struct {
 // which contains this label: `trainer.kubeflow.org/trainjob-ancestor-step: dataset-initializer`
 type DatasetInitializer struct {
 	// storageUri is the URI for the dataset provider.
+	// If set, it may be empty, or it must be a valid URI format
+	// (e.g., s3://bucket/path, gs://bucket/path).
+	// +kubebuilder:validation:XValidation:rule="self == '' || self.matches('^[A-Za-z][A-Za-z0-9+.-]*://.+$')",message="storageUri may be empty, or it must be a valid URI (scheme://...)"
 	// +kubebuilder:validation:MaxLength=2048
 	// +optional
 	StorageUri *string `json:"storageUri,omitempty"`
@@ -217,6 +220,9 @@ type DatasetInitializer struct {
 // which contains this label: `trainer.kubeflow.org/trainjob-ancestor-step: dataset-initializer`
 type ModelInitializer struct {
 	// storageUri is the URI for the model provider.
+	// If set, it may be empty, or it must be a valid URI format
+	// (e.g., s3://bucket/path, gs://bucket/path).
+	// +kubebuilder:validation:XValidation:rule="self == '' || self.matches('^[A-Za-z][A-Za-z0-9+.-]*://.+$')",message="storageUri may be empty, or it must be a valid URI (scheme://...)"
 	// +kubebuilder:validation:MaxLength=2048
 	// +optional
 	StorageUri *string `json:"storageUri,omitempty"`
@@ -605,8 +611,4 @@ type UpdateTrainJobStatusRequest struct {
 	// This is an alpha feature and requires enabling the TrainJobStatus feature gate.
 	// +optional
 	TrainerStatus *TrainerStatus `json:"trainerStatus,omitempty"`
-}
-
-func init() {
-	SchemeBuilder.Register(&TrainJob{}, &TrainJobList{})
 }
